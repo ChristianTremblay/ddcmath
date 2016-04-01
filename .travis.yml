@@ -10,6 +10,8 @@ install:
 - pip install -r requirements.txt
 - pip install coveralls
 - pip install pytest
+- pip install pytest-cov
+- pip install pytest-pep8
 script:
 - py.test -v --cov=ddcmath tests/
 after_success: coveralls
