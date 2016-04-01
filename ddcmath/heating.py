@@ -5,6 +5,7 @@
 #
 # Licensed under GPLv3, see file LICENSE in this source tree.
 from .temperature import delta_c2f
+from .airflow import cfm2ls
 
 def heating_cfm(kw = None, btu = None, delta_t_celsius = None, delta_t_farenheit = None):
     if not kw:
@@ -24,7 +25,7 @@ def heating_ls(kw = None, btu = None, delta_t_celsius = None, delta_t_farenheit 
                       btu = btu, 
                       delta_t_celsius = delta_t_celsius, 
                       delta_t_farenheit = delta_t_farenheit)
-    return (cfm * 0.4719475)
+    return cfm2ls(cfm)
     
 def heating_kw(cfm = None, ls = None, delta_t_celsius = None, delta_t_farenheit = None):
     if not cfm and not ls:
