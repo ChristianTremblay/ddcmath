@@ -1,4 +1,4 @@
-ddcmath |build-status| |coverage| |docs|
+ddcmath |build-status| |coverage|
 =====================================
 
 Math functions related to DDC controls for Building Automation
