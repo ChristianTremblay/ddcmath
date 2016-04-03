@@ -12,7 +12,7 @@ def heating_cfm(kw = None, btu = None, delta_t_celsius = None, delta_t_farenheit
         raise ValueError('kw must not be 0')
     if delta_t_farenheit and delta_t_celsius:
         raise ValueError('Provide only one value, in celsius or farenheit')
-    if delta_t_farenheit == 0 or delta_t_celsius == 0:
+    if delta_t_farenheit == 0 or delta_t_celsius == 0 or (not delta_t_farenheit and not delta_t_celsius):
         raise ValueError('Delta T must be greater than 0')
     if delta_t_celsius:
         return heating_cfm(kw = kw, btu = None, delta_t_farenheit = delta_c2f(delta_t_celsius))

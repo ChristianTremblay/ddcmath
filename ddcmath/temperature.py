@@ -5,7 +5,9 @@
 #
 # Licensed under GPLv3, see file LICENSE in this source tree.
 
-def oat_percent(oat, mat, rat):
+from .exceptions import InaccuracyException
+
+def oat_percent(oat, rat, mat):
     """
     Returns outdoor air proportion based on outside air temp, mixed air
     temp and return air temp on a rooftop unit
@@ -16,6 +18,8 @@ def oat_percent(oat, mat, rat):
     
     :returns: oat_prop (outdoor air proportion in %)
     """
+    if oat >= 20:
+        raise InaccuracyException('Outside air temperature too high. Will lead to wrong result')
     prop_oat = (mat - rat) / (oat - rat)
     return prop_oat
     
