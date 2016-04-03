@@ -4,6 +4,7 @@
 # Copyright (C) 2015 by Christian Tremblay, P.Eng <christian.tremblay@servisys.com>
 #
 # Licensed under GPLv3, see file LICENSE in this source tree.
+from __future__ import division
 
 from ddcmath.temperature import f2c, c2f, delta_c2f, delta_f2c, oat_percent
 from ddcmath.tolerance import abs_relative_error
