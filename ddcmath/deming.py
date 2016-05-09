@@ -14,7 +14,7 @@ import numpy as np
 from math import fabs
 from bokeh.plotting import figure
 from bokeh.models.sources import ColumnDataSource
-from bokeh.models import HoverTool
+from bokeh.models import HoverTool, BoxAnnotation
 
 from collections import OrderedDict
 
@@ -123,10 +123,22 @@ class moving_range(object):
                         self._df.loc[self._df.index[i-2],'x'] = True
 
             if i >= 7:
-                if self._df['values'][i-7:i][self._df['values'] > self.Xb].count() == 8 \
-                or self._df['values'][i-7:i][self._df['values'] < self.Xb].count() >= 8:
+                if self._df['values'][i-8:i][self._df['values'] > self.Xb].count() == 8 \
+                or self._df['values'][i-8:i][self._df['values'] < self.Xb].count() >= 8:
                     print('record %s : 8 consecutive above / below mean' % i)
                     self._df.loc[self._df.index[i],'x'] = True
+
+            # Mixture
+            if i >= 8:
+                if self._df['values'][i-8:i][(self._df['values'] < self._sigma['1']) & (self._df['values'] > self._sigma['-1'])].count() == 0 \
+                and self._df['values'][i-8:i][self._df['values'] > self._sigma['1']].count() >= 3 \
+                and self._df['values'][i-8:i][self._df['values'] < self._sigma['-1']].count() >= 3 :
+                    self._df.loc[self._df.index[i],'mixture'] = True
+                    
+            # Stratification
+            if i >= 15:
+                if self._df['values'][i-15:i][(self._df['values'] < self._sigma['1']) & (self._df['values'] > self._sigma['-1'])].count() == 15 :
+                    self._df.loc[self._df.index[i],'stratification'] = True
 
     def _result(self):
         df = pd.DataFrame()
@@ -143,6 +155,8 @@ class moving_range(object):
         df['sigma-2'] = self._sigma['-2']
         df['sigma-3'] = self._sigma['-3']
         df['x'] = False
+        df['stratification'] = False
+        df['mixture'] = False
         self._df = df
         
     @property
@@ -174,6 +188,20 @@ class moving_range(object):
             val = df['values'][df['x'] == True],
             time = df['index'].apply(str)
             ))
+
+        strat_src = ColumnDataSource(
+            data=dict(
+            x = df['index'][df['x'] == True],
+            val = df['values'][df['stratification'] == True],
+            time = df['index'].apply(str)
+            ))        
+
+        mix_src = ColumnDataSource(
+            data=dict(
+            x = df['index'][df['x'] == True],
+            val = df['values'][df['mixture'] == True],
+            time = df['index'].apply(str)
+            ))
             
         hover = p.select(dict(type=HoverTool))
         hover.tooltips = OrderedDict([
@@ -181,7 +209,19 @@ class moving_range(object):
             ('value', '@val'),
         ]) 
         
+        zone_c_1 = BoxAnnotation(plot=p, bottom=self._df['sigma2'][0], top=self._df['sigma3'][0], fill_alpha=0.1, fill_color='orange')
+        zone_b_1 = BoxAnnotation(plot=p, bottom=self._df['sigma1'][0], top=self._df['sigma2'][0], fill_alpha=0.1, fill_color='yellow')        
+        zone_a_1 = BoxAnnotation(plot=p, bottom=self._df['mean'][0], top=self._df['sigma1'][0], fill_alpha=0.1, fill_color='green')        
+        zone_a_2 = BoxAnnotation(plot=p, bottom=self._df['sigma-1'][0], top=self._df['mean'][0], fill_alpha=0.1, fill_color='green')        
+        zone_b_2 = BoxAnnotation(plot=p, bottom=self._df['sigma-2'][0], top=self._df['sigma-1'][0], fill_alpha=0.1, fill_color='yellow')        
+        zone_c_2 = BoxAnnotation(plot=p, bottom=self._df['sigma-3'][0], top=self._df['sigma-2'][0], fill_alpha=0.1, fill_color='orange')
+        
+        p.renderers.extend([zone_c_1, zone_b_1, zone_a_1, zone_a_2, zone_b_2, zone_c_2])
+        
         p.x('x', 'val', source = x_src, name = "x", size=25, line_width=5, color="red")
+        p.triangle('x', 'val', source = strat_src, size = 25, line_width=5, color="black")        
+        p.triangle('x', 'val', source = mix_src, size = 25, line_width=5, color="black")        
+                
         p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
         p.circle('x', 'val', source = src, size=10, color='blue')
         p.line('x', 'up', source = src, line_width=2, line_color='red')
