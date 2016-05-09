@@ -14,6 +14,9 @@ import numpy as np
 from math import fabs
 from bokeh.plotting import figure
 from bokeh.models.sources import ColumnDataSource
+from bokeh.models import HoverTool
+
+from collections import OrderedDict
 
 def ext_range(records, n):
     facteurs = {2 : {'A2':1.88, 'D3' : 0.00, 'D4':3.27},
@@ -98,40 +101,32 @@ class moving_range(object):
 
     def unnatural_pattern_detection(self):
         for i, value in enumerate(self._df['values']):
-            #print('Value : %s' % i)
-            if i == 0:
-                continue
-            if fabs(value) > self._sigma['3']:
-                print('record %s : Above zone C' % i)
-                self._df.loc[self._df.index[i-1],'x'] = True
-                continue
+            if value > self._sigma['3'] or value < self._sigma['-3']:
+                self._df.loc[self._df.index[i],'x'] = True
             
-            if i > 2:
+            if i >= 2:
                 if self._df['values'][i-3:i][self._df['values'] > self._sigma['2']].count() >= 2 \
                 or self._df['values'][i-3:i][self._df['values'] < self._sigma['-2']].count() >= 2:
-                    print('record %s : 2 out of 3 in zone A' % i)
-                    print(self._df['values'][i-3:i][self._df['values'] > self._sigma['2']])
-                    print(self._df['values'][i-3:i][self._df['values'] < self._sigma['-2']])                    
-                    j = i                    
-                    while (self._df['values'][j] > self._sigma['2']) \
-                    or (self._df['values'][j] < self._sigma['-2']):
-                        j -= 1
-                    self._df.loc[self._df.index[j],'x'] = True
-                    continue
+                    if self._df['values'][i] > self._sigma['2'] \
+                    or self._df['values'][i] < self._sigma['-2']:
+                        self._df.loc[self._df.index[i-1],'x'] = True
+                    else:
+                        self._df.loc[self._df.index[i-3],'x'] = True
                     
-            if i > 4:
+            if i >= 4:
                 if self._df['values'][i-5:i][self._df['values'] > self._sigma['1']].count() >= 4 \
                 or self._df['values'][i-5:i][self._df['values'] < self._sigma['-1']].count() >= 4:
-                    print('record %s : 4 out of 5 in zone B' % i)
-                    self._df.loc[self._df.index[i-1],'x'] = True
-                    continue
-                
-            if i > 7:
-                if self._df['values'][i-8:i][self._df['values'] > self.Xb].count() >= 8 \
-                or self._df['values'][i-8:i][self._df['values'] < self.Xb].count() >= 8:
+                    if self._df['values'][i] > self._sigma['1'] \
+                    or self._df['values'][i] < self._sigma['-1']:
+                        self._df.loc[self._df.index[i-1],'x'] = True
+                    else:
+                        self._df.loc[self._df.index[i-2],'x'] = True
+
+            if i >= 7:
+                if self._df['values'][i-7:i][self._df['values'] > self.Xb].count() == 8 \
+                or self._df['values'][i-7:i][self._df['values'] < self.Xb].count() >= 8:
                     print('record %s : 8 consecutive above / below mean' % i)
-                    self._df.loc[self._df.index[i-1],'x'] = True
-                    continue
+                    self._df.loc[self._df.index[i],'x'] = True
 
     def _result(self):
         df = pd.DataFrame()
@@ -155,36 +150,48 @@ class moving_range(object):
         return self._df
         
     def control_chart(self):
-        p = figure(plot_width=600, plot_height=500, x_axis_type="datetime", title='Control Chart')
-        
+        #TOOLS = "hover,resize,save,pan,box_zoom,wheel_zoom,reset"
+        hover = HoverTool(names=["x", "values"])
+        p = figure(plot_width=600, plot_height=500, x_axis_type="datetime", title='Control Chart', tools = [hover,])
+        df = self.result.reset_index()
         # add a line renderer
         src = ColumnDataSource(
             data=dict(
-            x = self.result.index,
-            val = self.result['values'],
-            up = self.result['upper limit'],
-            low = self.result['lower limit'],
-            mean = self.result['mean'],
-            sigma1 = self.result['sigma1'],
-            sigma2 = self.result['sigma2'],
-            minus_sigma1 = self.result['sigma-1'],
-            minus_sigma2 = self.result['sigma-2']
+            x = df['index'],
+            val = df['values'],
+            up = df['upper limit'],
+            low = df['lower limit'],
+            mean = df['mean'],
+            sigma1 = df['sigma1'],
+            sigma2 = df['sigma2'],
+            minus_sigma1 = df['sigma-1'],
+            minus_sigma2 = df['sigma-2'],
+            time = df['index'].apply(str)
             ))
         x_src = ColumnDataSource(
             data=dict(
-            x = self.result[self.result['x'] == True].index,
-            y = self.result['values'][self.result['x'] == True]
+            x = df['index'][df['x'] == True],
+            val = df['values'][df['x'] == True],
+            time = df['index'].apply(str)
             ))
-        p.line('x', 'val', source = src, line_width=2, line_color='blue')
+            
+        hover = p.select(dict(type=HoverTool))
+        hover.tooltips = OrderedDict([
+            ('timestamp', '@time'),
+            ('value', '@val'),
+        ]) 
+        
+        p.x('x', 'val', source = x_src, name = "x", size=25, line_width=5, color="red")
+        p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
+        p.circle('x', 'val', source = src, size=10, color='blue')
         p.line('x', 'up', source = src, line_width=2, line_color='red')
         p.line('x', 'low', source = src, line_width=2, line_color='red')
         p.line('x', 'mean', source = src, line_width=2)
         # x
-        p.x('x', 'y', source = x_src, size=20, color="black")
-        p.line('x', 'sigma1', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
-        p.line('x', 'sigma2', source = src, line_dash=[4, 4], line_color="green", line_width=2, alpha=0.5)
-        p.line('x', 'minus_sigma1', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
-        p.line('x', 'minus_sigma2', source = src, line_dash=[4, 4], line_color="green", line_width=2, alpha=0.5)
+        p.line('x', 'sigma1', source = src, line_dash=[4, 4], line_color="green", line_width=2, alpha=0.5)
+        p.line('x', 'sigma2', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
+        p.line('x', 'minus_sigma1', source = src, line_dash=[4, 4], line_color="green", line_width=2, alpha=0.5)
+        p.line('x', 'minus_sigma2', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
         
         #show(p) 
         return p
