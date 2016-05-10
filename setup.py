@@ -16,10 +16,10 @@ setup(name='ddcmath',
       keywords = ['bacnet', 'building', 'automation', 'test'],
       packages=[
           'ddcmath',
+          'ddcmath.stats',
           ],
 #      install_requires=[
 #          'pandas',
-#          'bacpypes',
 #          'bokeh',
 #          ],
       long_description=open('README.rst').read(),
