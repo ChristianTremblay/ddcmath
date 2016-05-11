@@ -14,18 +14,19 @@ import numpy as np
 from math import fabs
 
 from .pattern_analysis import UnnaturalPatternMixin
-from .charts import IndividualChart, DistributionChart, Dashboard
+from .charts import IndividualChart, XandRChart, DistributionChart, Dashboard
 
 class Analysis(Dashboard):
     def __init__(self, records):
         if not isinstance(records, pd.Series):
             raise TypeError('Provide data as a Pandas Series')
         self._records = records.dropna()
-        self._r_chart = None
-        self._xb_chart = None
+        x_r = XandR(records)
+        self._r_chart = x_r.build_chart('r')
+        self._xb_chart = x_r.build_chart('x')
         self._individual_chart = MovingRange(self._records).build_chart()
         self._distribution_chart = DistributionChart.build_chart(self._records)
-        self.dashboard = Dashboard.build_dashboard(self._individual_chart,self._distribution_chart)
+        self.dashboard = Dashboard.build_dashboard(self._r_chart, self._xb_chart, self._individual_chart,self._distribution_chart)
     
 #    @property
 #    def dashboard(self):
@@ -77,7 +78,7 @@ class ControlChart(UnnaturalPatternMixin):
     def __repr__(self):
         raise NotImplementedError('Must be overridden')
 
-class XandR(ControlChart):
+class XandR(ControlChart, XandRChart):
     FACTORS = { '2' : {'A2' : 1.88, 'D3' : 0, 'D4' : 3.27},
                 '3' : {'A2' : 1.02, 'D3' : 0, 'D4' : 2.57},
                 '4' : {'A2' : 0.73, 'D3' : 0, 'D4' : 2.28},
@@ -119,18 +120,33 @@ class XandR(ControlChart):
         self._df_R['mean'] = self._df_R['values'].mean()
         self._df_R['upper limit'] = self._df_R['mean'] * self.FACTORS[self._n_key]['D4']
         self._df_R['lower limit'] = self._df_R['mean'] * self.FACTORS[self._n_key]['D3']
-        self._df_R = self._add_sigma(self._df_R['mean'][0],self._df_R['upper limit'][0], self._df_R['upper limit'][0],self._df_R)
-
+        self._df_R = self._add_sigma(self._df_R['mean'][0],self._df_R['upper limit'][0], self._df_R['lower limit'][0],self._df_R)
+        self._df_R['x'] = False
+        self._df_R['stratification'] = False
+        self._df_R['mixture'] = False
+        self.unnatural_pattern_detection(chart_type = 'r')
+        
         self._df_X = pd.DataFrame({'values' : self._Xbar})        
         self._df_X['mean'] = self._df_X['values'].mean()
         width = self._df_X['mean'] * self.FACTORS[self._n_key]['A2']
         self._df_X['upper limit'] = self._df_X['mean'] + width
         self._df_X['lower limit'] = self._df_X['mean'] - width
-        self._df_X = self._add_sigma(self._df_X['mean'][0],self._df_X['upper limit'][0], self._df_X['upper limit'][0],self._df_X)
-
+        self._df_X = self._add_sigma(self._df_X['mean'][0],self._df_X['upper limit'][0], self._df_X['lower limit'][0],self._df_X)
+        self._df_X['x'] = False
+        self._df_X['stratification'] = False
+        self._df_X['mixture'] = False
         self._df = {'R':self._df_R,
                     'Xb' : self._df_X}
-        #self.unnatural_pattern_detection()
+        self.unnatural_pattern_detection(chart_type = 'x')
+                    
+    @property
+    def x(self):
+        return self._df_X
+        
+    @property
+    def r(self):
+        return self._df_R        
+    
     def __repr__(self):
         return ('Not done yet')
 
@@ -175,6 +191,10 @@ class MovingRange(ControlChart, IndividualChart):
         self._df = df
 
         self.unnatural_pattern_detection()
+        
+    @property
+    def result(self):
+        return self._df
         
     def __repr__(self):
         return ('Mean : %s \nUpper limit : %s\Lower limit : %s ' % (self.mean, self.UCL, self.LCL))
