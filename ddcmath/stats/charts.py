@@ -12,20 +12,26 @@
 import pandas as pd
 import numpy as np
 from math import fabs
-from bokeh.plotting import figure
+from bokeh.plotting import figure, hplot, vplot
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models import HoverTool, BoxAnnotation
 
 from collections import OrderedDict
 
-#class Chart():
-    
+class XbChart():
+    def build_chart(self):
+        raise NotImplementedError('Not done yet')
+  
+
+class RChart():
+    def build_chart(self):
+        raise NotImplementedError('Not done yet')
 
 class IndividualChart():
     def build_chart(self):
         TOOLS = "resize,save,pan,box_zoom,wheel_zoom,reset"
         hover = HoverTool(names=["x", "values"])
-        p = figure(plot_width=600, plot_height=500, x_axis_type="datetime", title='Control Chart', tools = [hover,TOOLS])
+        p = figure(plot_width=600, plot_height=500, x_axis_type="datetime", title='Moving Range', tools = [hover,TOOLS])
         df = self.result.reset_index()
         # add a line renderer
         src = ColumnDataSource(
@@ -94,3 +100,25 @@ class IndividualChart():
         
         #show(p) 
         return p
+
+class DistributionChart():
+    def build_chart(self, serie):
+        TOOLS = "resize,hover,save,pan,box_zoom,wheel_zoom,reset"
+        p = figure(plot_width=600, plot_height=500, title='Distribution', tools = TOOLS)
+        records = serie.dropna()
+        min = np.min(records)
+        max = np.max(records)
+        bins = int(fabs((max-min)/0.1))
+        hist, edges = np.histogram(records, density=False, bins=bins)
+        #p1.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
+        #        fill_color="#036564", line_color="#033649", alpha=0.5)
+        p.line(edges,hist)
+        return p
+
+class Dashboard():        
+    def build_dashboard(self, ind_chart, dist_chart):
+        #r = rchart
+        #Xb = XbChart
+        #mr = MovingRange(serie)
+        #show()
+        return (hplot(ind_chart,dist_chart))
