@@ -48,3 +48,9 @@ class UnnaturalPatternMixin():
             if i >= 15:
                 if df['values'][i-15:i][(df['values'] < df['sigma1'][0]) & (df['values'] > df['sigma-1'][0])].count() == 15 :
                     df.loc[df.index[i],'stratification'] = True
+            if chart_type is 'r':
+                self._df_R = df
+            elif chart_type is 'x':
+                self._df_X = df
+            else:
+                self._df = df

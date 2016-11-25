@@ -15,18 +15,19 @@ from math import fabs
 from bokeh.plotting import figure, hplot, vplot
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models import HoverTool, BoxAnnotation
+from bokeh.models.layouts import Column, Row
 
 from collections import OrderedDict
 
 class XandRChart():
-    def build_chart(self, chart = 'x'):
-        if 'r' is chart:
+    def build_chart(self, chart = 'r'):
+        if chart is 'r':
             title = 'R Chart'
             df = self._df_R.reset_index()
         else:
             title = 'Xb Chart'
             df = self._df_X.reset_index()
-        TOOLS = "resize,save,pan,box_zoom,wheel_zoom,reset"
+        TOOLS = "resize,pan,box_zoom,wheel_zoom,reset"
         hover = HoverTool(names=["x", "values"])
         p = figure(plot_width=400, plot_height=300, title=title, tools = [hover,TOOLS])
         # add a line renderer
@@ -79,12 +80,6 @@ class XandRChart():
         
         p.renderers.extend([zone_c_1, zone_b_1, zone_a_1, zone_a_2, zone_b_2, zone_c_2])
         
-        p.x('x', 'val', source = x_src, name = "x", size=25, line_width=5, color="red")
-        p.triangle('x', 'val', source = strat_src, size = 25, line_width=5, color="black")        
-        p.triangle('x', 'val', source = mix_src, size = 25, line_width=5, color="black")        
-                
-        p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
-        p.circle('x', 'val', source = src, size=10, color='blue')
         p.line('x', 'up', source = src, line_width=2, line_color='red')
         p.line('x', 'low', source = src, line_width=2, line_color='red')
         p.line('x', 'mean', source = src, line_width=2)
@@ -93,6 +88,12 @@ class XandRChart():
         p.line('x', 'sigma2', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
         p.line('x', 'minus_sigma1', source = src, line_dash=[4, 4], line_color="green", line_width=2, alpha=0.5)
         p.line('x', 'minus_sigma2', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
+        p.x('x', 'val', source = x_src, name = "x", size=25, line_width=5, color="red")
+        p.triangle('x', 'val', source = strat_src, size = 25, line_width=5, color="black")        
+        p.triangle('x', 'val', source = mix_src, size = 25, line_width=5, color="black")        
+                
+        p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
+        p.circle('x', 'val', source = src, size=10, color='blue')
         
         #show(p) 
         return p
@@ -100,7 +101,7 @@ class XandRChart():
 
 class IndividualChart():
     def build_chart(self):
-        TOOLS = "resize,save,pan,box_zoom,wheel_zoom,reset"
+        TOOLS = "resize,pan,box_zoom,wheel_zoom,reset"
         hover = HoverTool(names=["x", "values"])
         p = figure(plot_width=400, plot_height=300, x_axis_type="datetime", title='Moving Range', tools = [hover,TOOLS])
         df = self.result.reset_index()
@@ -154,12 +155,6 @@ class IndividualChart():
         
         p.renderers.extend([zone_c_1, zone_b_1, zone_a_1, zone_a_2, zone_b_2, zone_c_2])
         
-        p.x('x', 'val', source = x_src, name = "x", size=25, line_width=5, color="red")
-        p.triangle('x', 'val', source = strat_src, size = 25, line_width=5, color="black")        
-        p.triangle('x', 'val', source = mix_src, size = 25, line_width=5, color="black")        
-                
-        p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
-        p.circle('x', 'val', source = src, size=10, color='blue')
         p.line('x', 'up', source = src, line_width=2, line_color='red')
         p.line('x', 'low', source = src, line_width=2, line_color='red')
         p.line('x', 'mean', source = src, line_width=2)
@@ -168,22 +163,28 @@ class IndividualChart():
         p.line('x', 'sigma2', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
         p.line('x', 'minus_sigma1', source = src, line_dash=[4, 4], line_color="green", line_width=2, alpha=0.5)
         p.line('x', 'minus_sigma2', source = src, line_dash=[4, 4], line_color="orange", line_width=2, alpha=0.5)
+        p.x('x', 'val', source = x_src, name = "x", size=25, line_width=5, color="red")
+        p.triangle('x', 'val', source = strat_src, size = 25, line_width=5, color="black")        
+        p.triangle('x', 'val', source = mix_src, size = 25, line_width=5, color="black")        
+                
+        p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
+        p.circle('x', 'val', source = src, size=10, color='blue')
         
         #show(p) 
         return p
 
 class DistributionChart():
     def build_chart(serie):
-        TOOLS = "resize,hover,save,pan,box_zoom,wheel_zoom,reset"
+        TOOLS = "resize,hover,pan,box_zoom,wheel_zoom,reset"
         p = figure(plot_width=400, plot_height=300, title='Distribution', tools = TOOLS)
         records = serie.dropna()
-        min = np.min(records)
-        max = np.max(records)
-        bins = int(fabs((max-min)/0.1))
+        min_val = np.min(records)
+        max_val = np.max(records)
+        bins = max(int(fabs((max_val-min_val)/0.1)),1)
         hist, edges = np.histogram(records, density=False, bins=bins)
         p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
                 fill_color="#036564", line_color="#033649", alpha=0.5)
-        p.line(edges,hist,line_width=2)
+        p.line(edges,hist, line_width=2, line_color='blue')
         return p
 
 class Dashboard():        
@@ -192,4 +193,4 @@ class Dashboard():
         #Xb = XbChart
         #mr = MovingRange(serie)
         #show()
-        return (vplot(hplot(r_chart, x_chart), hplot(ind_chart,dist_chart)))
+        return (Column(Row(r_chart, x_chart), Row(ind_chart,dist_chart)))

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
 from setuptools import setup
 from ddcmath import infos
 
@@ -18,10 +17,10 @@ setup(name='ddcmath',
           'ddcmath',
           'ddcmath.stats',
           ],
-#      install_requires=[
-#          'pandas',
+      install_requires=[
+          'pint',
 #          'bokeh',
-#          ],
+          ],
       long_description=open('README.rst').read(),
       classifiers=[
           "Development Status :: 4 - Beta",

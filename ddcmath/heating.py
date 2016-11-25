@@ -4,7 +4,7 @@
 # Copyright (C) 2015 by Christian Tremblay, P.Eng <christian.tremblay@servisys.com>
 #
 # Licensed under GPLv3, see file LICENSE in this source tree.
-from .temperature import delta_c2f
+from .temperature import delta_c2f, delta_f2c
 from .airflow import cfm2ls
 
 def heating_cfm(kw = None, btu = None, delta_t_celsius = None, delta_t_farenheit = None):
@@ -37,3 +37,27 @@ def heating_kw(cfm = None, ls = None, delta_t_celsius = None, delta_t_farenheit 
     elif delta_t_celsius:
         kw = delta_c2f(delta_t_celsius) * cfm * 1.08 / 3412
     return kw
+    
+def heating_deltaT_f(cfm = None, ls = None, kw = None):
+    if not cfm and not ls:
+        raise ValueError('Provide at least one flow (CFM or LS)')
+    if ls:
+        cfm = ls / 0.4719475
+    if kw:
+        delta_t_farenheit = kw / (cfm * 1.08 / 3412)
+    else:
+        raise ValueError('Provide at kW')
+
+    return delta_t_farenheit
+    
+def heating_deltaT_c(cfm = None, ls = None, kw = None):
+    if not cfm and not ls:
+        raise ValueError('Provide at least one flow (CFM or LS)')
+    if ls:
+        cfm = ls / 0.4719475
+    if kw:
+        delta_t_farenheit = kw / (cfm * 1.08 / 3412)
+    else:
+        raise ValueError('Provide at kW')
+
+    return delta_f2c(delta_t_farenheit)
