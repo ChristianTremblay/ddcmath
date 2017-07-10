@@ -15,16 +15,17 @@ from math import fabs
 
 from .pattern_analysis import UnnaturalPatternMixin
 from .charts import IndividualChart, XandRChart, DistributionChart, Dashboard
+from .tables import TABLE_A2_D3_D4
 
 class Analysis(Dashboard):
-    def __init__(self, records, n = None):
+    def __init__(self, records, n = None, pattern_detection = False):
         if not isinstance(records, pd.Series):
             raise TypeError('Provide data as a Pandas Series')
         self._records = records.dropna()
-        x_r = XandR(self._records, n)
+        x_r = XandR(self._records, n, pattern_detection)
         self._r_chart = x_r.build_chart(chart = 'r')
         self._xb_chart = x_r.build_chart(chart = 'x')
-        self._individual_chart = MovingRange(self._records).build_chart()
+        self._individual_chart = MovingRange(self._records, pattern_detection).build_chart()
         self._distribution_chart = DistributionChart.build_chart(self._records)
         self.dashboard = Dashboard.build_dashboard(self._r_chart, self._xb_chart, self._individual_chart,self._distribution_chart)
     
@@ -33,13 +34,13 @@ class Analysis(Dashboard):
 #        return self.dashboard
 
 class ControlChart(UnnaturalPatternMixin):
-    def __init__(self, records):
+    def __init__(self, records, pattern_detection = False):
         if not isinstance(records, pd.Series):
             raise TypeError('Provide data as a Pandas Series')
         self._records = records.dropna()
         self._sigma = {'1':0, '2':0, '3':0}
         self._df = None
-        
+        self.pattern_detection = pattern_detection
         if len(self._records) < 10:
             raise NotEnoughValues('Need more than 20, but not less than 10 values')
         
@@ -79,17 +80,8 @@ class ControlChart(UnnaturalPatternMixin):
         raise NotImplementedError('Must be overridden')
 
 class XandR(ControlChart, XandRChart):
-    FACTORS = { '2' : {'A2' : 1.88, 'D3' : 0, 'D4' : 3.27},
-                '3' : {'A2' : 1.02, 'D3' : 0, 'D4' : 2.57},
-                '4' : {'A2' : 0.73, 'D3' : 0, 'D4' : 2.28},
-                '5' : {'A2' : 0.58, 'D3' : 0, 'D4' : 2.11},
-                '6' : {'A2' : 0.48, 'D3' : 0, 'D4' : 2.00},
-                '7' : {'A2' : 0.42, 'D3' : 0.08, 'D4' : 1.92},
-                '8' : {'A2' : 0.37, 'D3' : 0.14, 'D4' : 1.86},
-                '9' : {'A2' : 0.34, 'D3' : 0.18, 'D4' : 1.82},
-                '10' : {'A2' : 0.31, 'D3' : 0.22, 'D4' : 1.78}
-            }
-    def __init__(self, records, n = None):
+    FACTORS = TABLE_A2_D3_D4
+    def __init__(self, records, n = None, pattern_detection = False):
         if not isinstance(records, pd.Series):
             raise TypeError('Provide data as a Pandas Series')
         # Decide sample size
@@ -124,18 +116,20 @@ class XandR(ControlChart, XandRChart):
         self._df_R['x'] = False
         self._df_R['stratification'] = False
         self._df_R['mixture'] = False
-        self.unnatural_pattern_detection(chart_type = 'r')
+        if self.pattern_detection:
+            self.unnatural_pattern_detection(chart_type = 'r')
         
         self._df_X = pd.DataFrame({'values' : self._Xbar})
         self._df_X['mean'] = self._df_X['values'].mean()
-        width = self._df_X['mean'][0] * self.FACTORS[self._n_key]['A2']
+        width = self._df_R['mean'][0] * self.FACTORS[self._n_key]['A2']
         self._df_X['upper limit'] = self._df_X['mean'][0] + width
         self._df_X['lower limit'] = self._df_X['mean'][0] - width
         self._df_X = self._add_sigma(self._df_X['mean'][0],self._df_X['upper limit'][0], self._df_X['lower limit'][0],self._df_X)
         self._df_X['x'] = False
         self._df_X['stratification'] = False
         self._df_X['mixture'] = False
-        self.unnatural_pattern_detection(chart_type = 'x')
+        if self.pattern_detection:
+            self.unnatural_pattern_detection(chart_type = 'x')
         
         self._df = {'R':self._df_R,
                     'Xb' : self._df_X}
@@ -155,7 +149,7 @@ class XandR(ControlChart, XandRChart):
 
 class MovingRange(ControlChart, IndividualChart):
     
-    def __init__(self, records):
+    def __init__(self, records, pattern_detection = False):
         self._listmR = []
         super(MovingRange, self).__init__(records)
 
@@ -191,8 +185,8 @@ class MovingRange(ControlChart, IndividualChart):
         df['stratification'] = False
         df['mixture'] = False
         self._df = df
-
-        self.unnatural_pattern_detection()
+        if self.pattern_detection:
+            self.unnatural_pattern_detection()
         
     @property
     def result(self):

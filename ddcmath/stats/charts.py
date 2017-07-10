@@ -92,7 +92,7 @@ class XandRChart():
         p.triangle('x', 'val', source = strat_src, size = 25, line_width=5, color="black")        
         p.triangle('x', 'val', source = mix_src, size = 25, line_width=5, color="black")        
                 
-        p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
+        #p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
         p.circle('x', 'val', source = src, size=10, color='blue')
         
         #show(p) 
@@ -167,7 +167,7 @@ class IndividualChart():
         p.triangle('x', 'val', source = strat_src, size = 25, line_width=5, color="black")        
         p.triangle('x', 'val', source = mix_src, size = 25, line_width=5, color="black")        
                 
-        p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
+        #p.line('x', 'val', source = src, name = "values", line_width=2, line_color='blue')
         p.circle('x', 'val', source = src, size=10, color='blue')
         
         #show(p) 
@@ -181,7 +181,7 @@ class DistributionChart():
         min_val = np.min(records)
         max_val = np.max(records)
         bins = max(int(fabs((max_val-min_val)/0.1)),1)
-        hist, edges = np.histogram(records, density=False, bins=bins)
+        hist, edges = np.histogram(records, density=False, bins=20)
         p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
                 fill_color="#036564", line_color="#033649", alpha=0.5)
         p.line(edges,hist, line_width=2, line_color='blue')
