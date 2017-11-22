@@ -12,7 +12,7 @@
 import pandas as pd
 import numpy as np
 from math import fabs
-from bokeh.plotting import figure, hplot, vplot
+from bokeh.plotting import figure
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models import HoverTool, BoxAnnotation
 from bokeh.models.layouts import Column, Row
