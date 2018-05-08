@@ -18,20 +18,24 @@ from .charts import IndividualChart, XandRChart, DistributionChart, Dashboard
 from .tables import TABLE_A2_D3_D4
 
 class Analysis(Dashboard):
-    def __init__(self, records, n = None, pattern_detection = False):
+    analysis = []
+    def __init__(self, records, n = None, pattern_detection = False, name = None):
         if not isinstance(records, pd.Series):
             raise TypeError('Provide data as a Pandas Series')
         self._records = records.dropna()
         x_r = XandR(self._records, n, pattern_detection)
-        self._r_chart = x_r.build_chart(chart = 'r')
-        self._xb_chart = x_r.build_chart(chart = 'x')
-        self._individual_chart = MovingRange(self._records, pattern_detection).build_chart()
+        self._r_chart = x_r.build_chart(chart = 'r', name = name)
+        #self._xb_chart = x_r.build_chart(chart = 'x')
+        #self._individual_chart = MovingRange(self._records, pattern_detection).build_chart()
         self._distribution_chart = DistributionChart.build_chart(self._records)
-        self.dashboard = Dashboard.build_dashboard(self._r_chart, self._xb_chart, self._individual_chart,self._distribution_chart)
-    
+        #self.analysis.append(Dashboard.build_columns(self._r_chart, self._xb_chart, self._individual_chart,self._distribution_chart))
+        self.analysis.append(Dashboard.build_columns(self._r_chart,self._distribution_chart))
+
 #    @property
 #    def dashboard(self):
 #        return self.dashboard
+    def reset_analysis(self):
+        self.analysis = []
 
 class ControlChart(UnnaturalPatternMixin):
     def __init__(self, records, pattern_detection = False):

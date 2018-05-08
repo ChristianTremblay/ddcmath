@@ -16,20 +16,22 @@ from bokeh.plotting import figure
 from bokeh.models.sources import ColumnDataSource
 from bokeh.models import HoverTool, BoxAnnotation
 from bokeh.models.layouts import Column, Row
+from bokeh.layouts import gridplot, layout
 
 from collections import OrderedDict
 
 class XandRChart():
-    def build_chart(self, chart = 'r'):
+    def build_chart(self, chart = 'r', name = None):
         if chart is 'r':
-            title = 'R Chart'
+            title = 'R Chart {}'.format(name)
             df = self._df_R.reset_index()
         else:
             title = 'Xb Chart'
             df = self._df_X.reset_index()
-        TOOLS = "resize,pan,box_zoom,wheel_zoom,reset"
+        TOOLS = "pan,box_zoom,wheel_zoom,reset"
         hover = HoverTool(names=["x", "values"])
-        p = figure(plot_width=400, plot_height=300, title=title, tools = [hover,TOOLS])
+        #p = figure(plot_width=400, plot_height=300, title=title, tools = [hover,TOOLS])
+        p = figure(plot_width=400, plot_height=300, title=title, tools="")
         # add a line renderer
         src = ColumnDataSource(
             data=dict(
@@ -48,21 +50,21 @@ class XandRChart():
             data=dict(
             x = df['index'][df['x'] == True],
             val = df['values'][df['x'] == True],
-            time = df['index'].apply(str)
+            time = df['index'][df['x'] == True].apply(str)
             ))
 
         strat_src = ColumnDataSource(
             data=dict(
-            x = df['index'][df['x'] == True],
+            x = df['index'][df['stratification'] == True],
             val = df['values'][df['stratification'] == True],
-            time = df['index'].apply(str)
+            time = df['index'][df['stratification'] == True].apply(str)
             ))        
 
         mix_src = ColumnDataSource(
             data=dict(
-            x = df['index'][df['x'] == True],
+            x = df['index'][df['mixture'] == True],
             val = df['values'][df['mixture'] == True],
-            time = df['index'].apply(str)
+            time = df['index'][df['mixture'] == True].apply(str)
             ))
             
         hover = p.select(dict(type=HoverTool))
@@ -101,7 +103,7 @@ class XandRChart():
 
 class IndividualChart():
     def build_chart(self):
-        TOOLS = "resize,pan,box_zoom,wheel_zoom,reset"
+        TOOLS = "pan,box_zoom,wheel_zoom,reset"
         hover = HoverTool(names=["x", "values"])
         p = figure(plot_width=400, plot_height=300, x_axis_type="datetime", title='Moving Range', tools = [hover,TOOLS])
         df = self.result.reset_index()
@@ -123,21 +125,21 @@ class IndividualChart():
             data=dict(
             x = df['index'][df['x'] == True],
             val = df['values'][df['x'] == True],
-            time = df['index'].apply(str)
+            time = df['index'][df['x'] == True].apply(str)
             ))
 
         strat_src = ColumnDataSource(
             data=dict(
-            x = df['index'][df['x'] == True],
+            x = df['index'][df['stratification'] == True],
             val = df['values'][df['stratification'] == True],
-            time = df['index'].apply(str)
+            time = df['index'][df['stratification'] == True].apply(str)
             ))        
 
         mix_src = ColumnDataSource(
             data=dict(
-            x = df['index'][df['x'] == True],
+            x = df['index'][df['mixture'] == True],
             val = df['values'][df['mixture'] == True],
-            time = df['index'].apply(str)
+            time = df['index'][df['mixture'] == True].apply(str)
             ))
             
         hover = p.select(dict(type=HoverTool))
@@ -175,22 +177,30 @@ class IndividualChart():
 
 class DistributionChart():
     def build_chart(serie):
-        TOOLS = "resize,hover,pan,box_zoom,wheel_zoom,reset"
-        p = figure(plot_width=400, plot_height=300, title='Distribution', tools = TOOLS)
+        TOOLS = "hover,pan,box_zoom,wheel_zoom,reset"
+        #p = figure(plot_width=400, plot_height=300, title='Distribution', tools = TOOLS)
+        p = figure(plot_width=400, plot_height=300, title='Distribution', tools="")
         records = serie.dropna()
         min_val = np.min(records)
         max_val = np.max(records)
-        bins = max(int(fabs((max_val-min_val)/0.1)),1)
+        bins = max(int(fabs((max_val-min_val)/0.5)),1)
         hist, edges = np.histogram(records, density=False, bins=20)
         p.quad(top=hist, bottom=0, left=edges[:-1], right=edges[1:],
                 fill_color="#036564", line_color="#033649", alpha=0.5)
         p.line(edges,hist, line_width=2, line_color='blue')
         return p
 
-class Dashboard():        
-    def build_dashboard(r_chart, x_chart, ind_chart, dist_chart):
+class Dashboard():       
+    def build_columns(r_chart,dist_chart):
         #r = rchart
         #Xb = XbChart
         #mr = MovingRange(serie)
         #show()
-        return (Column(Row(r_chart, x_chart), Row(ind_chart,dist_chart)))
+        #return (Column(Row(r_chart, x_chart), Row(ind_chart,dist_chart)))
+        return gridplot([[r_chart, dist_chart]])
+    
+    def build_layout(list_of_columns):
+        return layout(list_of_columns)
+    
+    
+    
