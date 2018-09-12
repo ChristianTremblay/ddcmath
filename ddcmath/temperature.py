@@ -7,6 +7,12 @@
 from __future__ import division
 
 from .exceptions import InaccuracyException
+try:
+    import numpy as np
+    import pandas as pd
+    PERM_MKT = True
+except ImportError:
+    PERM_MKT = False
 
 def oat_percent(oat, rat, mat):
     """
@@ -43,6 +49,8 @@ def delta_f2c(delta_t_farenheit = None):
     return delta_t_farenheit * (5.0/9.0)
 
 def mkt(temp_serie, delta_H=83.14472, gas_constant=0.008314472, unit='SI'):  
+    if not PERM_MKT:
+        raise ValueError('Missing Pandas and numpy')
     k_constant = 273.15
     delta_H = delta_H #kJ/mole
     gas_constant = gas_constant #kJ/mole/degree
@@ -52,4 +60,4 @@ def mkt(temp_serie, delta_H=83.14472, gas_constant=0.008314472, unit='SI'):
     ln = np.log(df['denominator'].mean()) * -1
     numerator = delta_H / gas_constant
     res = (numerator / ln)-k_constant
-    return 
+    return res

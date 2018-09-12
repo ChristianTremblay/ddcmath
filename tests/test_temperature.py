@@ -6,11 +6,18 @@
 # Licensed under GPLv3, see file LICENSE in this source tree.
 from __future__ import division
 
-from ddcmath.temperature import f2c, c2f, delta_c2f, delta_f2c, oat_percent
+from ddcmath.temperature import f2c, c2f, delta_c2f, delta_f2c, oat_percent, mkt
 from ddcmath.tolerance import abs_relative_error
 from ddcmath.exceptions import InaccuracyException
 
 import pytest
+
+try:
+    import numpy as np
+    import pandas as pd
+    PERM_MKT = True
+except ImportError:
+    PERM_MKT = False
 
 def test_f2c():
     """
@@ -39,4 +46,10 @@ def test_oa_proportion():
 def test_inaccuracy_of_oa_prop():
     with pytest.raises(InaccuracyException):
         oat_percent(20.000001,20,10) == 0.5
-    
+
+def test_mkt():
+    if not PERM_MKT:
+        return True
+    records = [19.8,20.2,20.6,21,21.3,21.5]
+    rec = pd.Series(records)
+    assert abs_relative_error(mkt(rec),20.752780387897474) < 0.001
