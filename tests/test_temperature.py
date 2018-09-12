@@ -51,5 +51,10 @@ def test_mkt():
     if not PERM_MKT:
         return True
     records = [19.8,20.2,20.6,21,21.3,21.5]
-    rec = pd.Series(records)
+    start = pd.datetime(2018, 9, 11,0,0)
+    end = pd.datetime(2018, 9, 11,0,5)
+    index = pd.date_range(start, end, freq='1Min')
+    rec = pd.Series(records, index=index)
+    rec2 = pd.Series(records)
     assert abs_relative_error(mkt(rec),20.752780387897474) < 0.001
+    assert abs_relative_error(mkt(rec2),20.752780387897474) < 0.001
