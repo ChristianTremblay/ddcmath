@@ -41,3 +41,15 @@ def delta_c2f(delta_t_celsius = None):
     
 def delta_f2c(delta_t_farenheit = None):
     return delta_t_farenheit * (5.0/9.0)
+
+def mkt(temp_serie, delta_H=83.14472, gas_constant=0.008314472, unit='SI'):  
+    k_constant = 273.15
+    delta_H = delta_H #kJ/mole
+    gas_constant = gas_constant #kJ/mole/degree
+    df = pd.DataFrame({'values':temp_serie})
+    df['kelvin'] = df['values'].add(k_constant)
+    df['denominator'] = df['kelvin'].apply(lambda x: np.exp(-delta_H/(gas_constant*x)))
+    ln = np.log(df['denominator'].mean()) * -1
+    numerator = delta_H / gas_constant
+    res = (numerator / ln)-k_constant
+    return 
