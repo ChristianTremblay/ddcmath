@@ -16,6 +16,8 @@ setup(name='ddcmath',
       packages=[
           'ddcmath',
           'ddcmath.stats',
+          'ddcmath.ashrae',
+          'ddcmath.ashrae.std55',
           ],
       install_requires=[
           'pint',
