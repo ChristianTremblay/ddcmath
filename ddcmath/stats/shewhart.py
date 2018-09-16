@@ -29,7 +29,7 @@ class Analysis(Dashboard):
         #self._individual_chart = MovingRange(self._records, pattern_detection).build_chart()
         self._distribution_chart = DistributionChart.build_chart(self._records)
         #self.analysis.append(Dashboard.build_columns(self._r_chart, self._xb_chart, self._individual_chart,self._distribution_chart))
-        self.analysis.append(Dashboard.build_columns(self._r_chart,self._distribution_chart))
+        self.analysis.append((Dashboard.build_columns(self._r_chart,self._distribution_chart),name))
 
 #    @property
 #    def dashboard(self):
