@@ -6,11 +6,11 @@
 # Licensed under GPLv3, see file LICENSE in this source tree.
 from math import pi
 
-def area(width = 0, height = 0, radius = 0):
+
+def area(width=0, height=0, radius=0):
     if radius:
-        return (pi * (radius ** 2))
+        return pi * (radius ** 2)
     elif width and height:
-        return (width * height)
+        return width * height
     else:
-        raise ValueError('Provide width + height OR radius')
-    
+        raise ValueError("Provide width + height OR radius")

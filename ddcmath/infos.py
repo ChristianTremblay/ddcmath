@@ -8,9 +8,9 @@
 Informations MetaData
 """
 
-__author__ = 'Christian Tremblay, P.Eng.'
-__email__ = 'christian.tremblay@servisys.com'
-__url__ = 'https://github.com/ChristianTremblay/ddcmath'
-__download_url__ = 'https://github.com/ChristianTremblay/ddcmath/archive/master.zip'
-__version__ = '0.32.6'
-__license__ = 'GPLv3'
+__author__ = "Christian Tremblay, P.Eng."
+__email__ = "christian.tremblay@servisys.com"
+__url__ = "https://github.com/ChristianTremblay/ddcmath"
+__download_url__ = "https://github.com/ChristianTremblay/ddcmath/archive/master.zip"
+__version__ = "20.05.07"
+__license__ = "GPLv3"

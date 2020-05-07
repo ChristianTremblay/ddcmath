@@ -3,3 +3,7 @@
 /ddcmath.egg-info
 __pycache__
 /.cache
+FX14 0005.bin
+FX14 0005.db
+/.pytest_cache
+ddcmath/stats/result.html
