@@ -7,6 +7,7 @@
 
 from ddcmath import infos
 
+
 def test_infos():
     """
     I hate to see 0% coverage :-)
@@ -17,4 +18,3 @@ def test_infos():
     assert infos.__url__
     assert infos.__download_url__
     assert infos.__license__
-    

@@ -5,9 +5,11 @@
 #
 # Licensed under GPLv3, see file LICENSE in this source tree.
 
+
 class InaccuracyException(Exception):
     """
     Context will lead to inaccuracy in computation.
     Result should not be considered correct
     """
+
     pass

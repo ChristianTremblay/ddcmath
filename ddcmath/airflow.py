@@ -6,13 +6,16 @@
 # Licensed under GPLv3, see file LICENSE in this source tree.
 import math
 
-def cfm2ls(cfm = 0):
+
+def cfm2ls(cfm=0):
     return cfm * 0.4719475
-    
-def ls2cfm(ls = 0):
+
+
+def ls2cfm(ls=0):
     return ls / 0.4719475
 
-def calculate_kfactor(area = 0, flow = 0, diff_pressure = 0, si=True, offset = 0.02):
+
+def calculate_kfactor(area=0, flow=0, diff_pressure=0, si=True, offset=0.02):
     """
     This function is able to compute the pickup_gain or K-Factor
     for PCV controllers or other VAV controllers using a similar
@@ -29,13 +32,14 @@ def calculate_kfactor(area = 0, flow = 0, diff_pressure = 0, si=True, offset = 0
     
     """
     if si:
-        area = area/0.0929
+        area = area / 0.0929
         flow = flow / 0.4720
-        velocity_pressure = (diff_pressure-(offset*diff_pressure))/248.84
+        velocity_pressure = (diff_pressure - (offset * diff_pressure)) / 248.84
     else:
-        velocity_pressure = diff_pressure-(offset*diff_pressure)
-    
-    return round(((area * 4005/flow)**2) * velocity_pressure,2)
+        velocity_pressure = diff_pressure - (offset * diff_pressure)
+
+    return round(((area * 4005 / flow) ** 2) * velocity_pressure, 2)
+
 
 def calculate_flow(area, k_factor, diff_pressure, si=True, offset=0.02):
     """
@@ -54,11 +58,11 @@ def calculate_flow(area, k_factor, diff_pressure, si=True, offset=0.02):
     
     """
     if si:
-        area = area/0.0929
-        velocity_pressure = (diff_pressure-(offset*diff_pressure))/248.84
+        area = area / 0.0929
+        velocity_pressure = (diff_pressure - (offset * diff_pressure)) / 248.84
     else:
-        velocity_pressure = diff_pressure-(offset*diff_pressure)
-    
-    flow = ((area * 4005) * math.sqrt(velocity_pressure/k_factor))
+        velocity_pressure = diff_pressure - (offset * diff_pressure)
+
+    flow = (area * 4005) * math.sqrt(velocity_pressure / k_factor)
     flow = flow * 0.4720
-    return round(flow,2)
+    return round(flow, 2)
