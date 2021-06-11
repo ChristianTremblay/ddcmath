@@ -9,9 +9,9 @@ from .airflow import cfm2ls
 
 
 def heating_cfm(kw=None, btu=None, delta_t_celsius=None, delta_t_farenheit=None):
-    if not kw:
+    if kw is None:
         raise ValueError("kw must not be 0")
-    if delta_t_farenheit and delta_t_celsius:
+    if delta_t_farenheit is not None and delta_t_celsius is not None:
         raise ValueError("Provide only one value, in celsius or farenheit")
     if (
         delta_t_farenheit == 0
@@ -19,7 +19,7 @@ def heating_cfm(kw=None, btu=None, delta_t_celsius=None, delta_t_farenheit=None)
         or (not delta_t_farenheit and not delta_t_celsius)
     ):
         raise ValueError("Delta T must be greater than 0")
-    if delta_t_celsius:
+    if delta_t_celsius is not None:
         return heating_cfm(
             kw=kw, btu=None, delta_t_farenheit=delta_c2f(delta_t_celsius)
         )
@@ -38,23 +38,23 @@ def heating_ls(kw=None, btu=None, delta_t_celsius=None, delta_t_farenheit=None):
 
 
 def heating_kw(cfm=None, ls=None, delta_t_celsius=None, delta_t_farenheit=None):
-    if not cfm and not ls:
+    if cfm is None and ls is None:
         raise ValueError("Provide at least one flow (CFM or LS)")
-    if ls:
+    if ls is not None:
         cfm = ls / 0.4719475
-    if delta_t_farenheit:
+    if delta_t_farenheit is not None:
         kw = delta_t_farenheit * cfm * 1.08 / 3412
-    elif delta_t_celsius:
+    elif delta_t_celsius is not None:
         kw = delta_c2f(delta_t_celsius) * cfm * 1.08 / 3412
     return kw
 
 
 def heating_deltaT_f(cfm=None, ls=None, kw=None):
-    if not cfm and not ls:
+    if cfm is None and ls is None:
         raise ValueError("Provide at least one flow (CFM or LS)")
-    if ls:
+    if ls is not None:
         cfm = ls / 0.4719475
-    if kw:
+    if kw is not None:
         delta_t_farenheit = kw / (cfm * 1.08 / 3412)
     else:
         raise ValueError("Provide at kW")
@@ -63,11 +63,11 @@ def heating_deltaT_f(cfm=None, ls=None, kw=None):
 
 
 def heating_deltaT_c(cfm=None, ls=None, kw=None):
-    if not cfm and not ls:
+    if cfm is None and ls is None:
         raise ValueError("Provide at least one flow (CFM or LS)")
-    if ls:
+    if ls is not None:
         cfm = ls / 0.4719475
-    if kw:
+    if kw is not None:
         delta_t_farenheit = kw / (cfm * 1.08 / 3412)
     else:
         raise ValueError("Provide at kW")

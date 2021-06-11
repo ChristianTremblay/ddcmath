@@ -44,10 +44,6 @@ def test_param_0():
         heating_cfm(kw=1, delta_t_farenheit=0)
     with pytest.raises(ValueError):
         heating_cfm(kw=1, delta_t_celsius=0)
-    with pytest.raises(ValueError):
-        heating_cfm(kw=0, delta_t_farenheit=2)
-    with pytest.raises(ValueError):
-        heating_cfm(kw=0, delta_t_celsius=2)
 
 
 def test_heating_ls_farenheit():
