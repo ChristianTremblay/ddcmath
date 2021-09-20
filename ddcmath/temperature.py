@@ -21,11 +21,11 @@ def oat_percent(oat, rat, mat):
     """
     Returns outdoor air proportion based on outside air temp, mixed air
     temp and return air temp on a rooftop unit
-    
+
     :params: mat (mixed air temp)
     :params: oat (outdoor air temp)
     :params: rat (return air temp)
-    
+
     :returns: oat_prop (outdoor air proportion in %)
     """
     if oat >= 20:

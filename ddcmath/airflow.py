@@ -20,16 +20,16 @@ def calculate_kfactor(area=0, flow=0, diff_pressure=0, si=True, offset=0.02):
     This function is able to compute the pickup_gain or K-Factor
     for PCV controllers or other VAV controllers using a similar
     equation.
-    
+
     gain = ((AREA * 4005) / FLOW)**2 * velocity_pressure
     velocity is calculated with an error (offset or 0.005inwc)
-    
+
     area : in square meters
     flow : by the flow hood
     diff_pressure : read by the controller transmitter on the pitot
     si = if True, use SI conversions.
     offset : typical correction of pressure reading
-    
+
     """
     if si:
         area = area / 0.0929
@@ -46,16 +46,16 @@ def calculate_flow(area, k_factor, diff_pressure, si=True, offset=0.02):
     This function is able to compute the pickup_gain or K-Factor
     for PCV controllers or other VAV controllers using a similar
     equation.
-    
+
     gain = ((AREA * 4005) / FLOW)**2 * velocity_pressure
     velocity is calculated with an error (offset or 0.005inwc)
-    
+
     area : in square meters
     k_factor : SA-KFACTOR
     diff_pressure : read by the controller transmitter on the pitot
     si = if True, use SI conversions.
     offset : typical correction of pressure reading
-    
+
     """
     if si:
         area = area / 0.0929

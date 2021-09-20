@@ -25,7 +25,7 @@ def fnps(TA):
 
 class PMVPPD:
     """
-    This class is used to compute PMV and PPD based on 
+    This class is used to compute PMV and PPD based on
     clothing, MET, WME, air temperature, radiant mean temperature, air velocity, relative humidity
     """
 

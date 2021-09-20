@@ -255,6 +255,6 @@ class SET:
 
 def findSaturatedVaporPressureTorr(temp):
     """
-        Helper function for SET. Calculates Saturated Vapor pressure (Torr) at temperature 'temp' (degC)
-        """
+    Helper function for SET. Calculates Saturated Vapor pressure (Torr) at temperature 'temp' (degC)
+    """
     return exp(18.6686 - 4030.183 / (temp + 235))
