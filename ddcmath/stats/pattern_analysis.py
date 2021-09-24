@@ -1,8 +1,8 @@
 class UnnaturalPatternMixin:
     def unnatural_pattern_detection(self, chart_type=None):
-        if chart_type is "r":
+        if chart_type == "r":
             df = self._df_R
-        elif chart_type is "x":
+        elif chart_type == "x":
             df = self._df_X
         else:
             df = self._df
@@ -77,9 +77,9 @@ class UnnaturalPatternMixin:
                     == 15
                 ):
                     df.loc[df.index[i], "stratification"] = True
-            if chart_type is "r":
+            if chart_type == "r":
                 self._df_R = df
-            elif chart_type is "x":
+            elif chart_type == "x":
                 self._df_X = df
             else:
                 self._df = df

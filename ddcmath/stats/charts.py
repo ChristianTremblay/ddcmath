@@ -23,7 +23,7 @@ from collections import OrderedDict
 
 class XandRChart:
     def build_chart(self, chart="r", name=None):
-        if chart is "r":
+        if chart == "r":
             title = "R Chart {}".format(name)
             df = self._df_R.reset_index()
         else:
