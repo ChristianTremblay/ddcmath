@@ -22,7 +22,7 @@ def calculate_kfactor(area=0, flow=0, diff_pressure=0, si=True, offset=0.02):
     equation.
 
     gain = ((AREA * 4005) / FLOW)**2 * velocity_pressure
-    velocity is calculated with an error (offset or 0.005inwc)
+    velocity is calculated with an error (offset of 0.005inwc)
 
     area : in square meters
     flow : by the flow hood

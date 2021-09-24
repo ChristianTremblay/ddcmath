@@ -1,3 +1,6 @@
+import pandas as pd
+
+
 def kwh_and_cost(kw, cost=0.10):
     """
     Takes a pandas.DataFrame with a column named kW
